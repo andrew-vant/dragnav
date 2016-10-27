@@ -1,25 +1,25 @@
 .PHONY : all clean
 
-libdir = libs
-builddir = build
-confdir = $(builddir)/PluginData/DraggableNavball
+LIB = libs
+BUILD = build/DraggableNavball
+SOURCE = src
+CONF = $(BUILD)/PluginData/DraggableNavball
 
-all : $(builddir)/DraggableNavball.dll $(confdir)/DraggableNavball.cfg
+all : $(BUILD)/DraggableNavball.dll $(CONF)/DraggableNavball.cfg
 
-$(builddir) :
-	mkdir -p $<
-
-$(builddir)/DraggableNavball.dll : dragnavball.cs
+$(BUILD)/%.dll : $(SOURCE)/%.cs
+	@mkdir -p $(@D)
 	mcs $< \
 		-target:library \
 		-out:$@ \
-		-lib:$(libdir) \
+		-lib:$(LIB) \
 		-reference:Assembly-CSharp.dll \
 		-reference:UnityEngine.dll \
 		-reference:UnityEngine.UI.dll
 
-$(confdir)/DraggableNavball.cfg : dragnavball.cfg
-	mkdir -p $(confdir)
+$(CONF)/%.cfg : $(SOURCE)/%.cfg
+	@mkdir -p $(@D)
 	cp -f $< $@
+
 clean : 
-	-rm -r $(builddir)/*
+	-rm -rf build
