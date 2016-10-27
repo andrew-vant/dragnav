@@ -13,7 +13,7 @@ public class NavBallAttacher : MonoBehaviour
 		GameObject frame = ball.transform.parent.gameObject.transform.parent.gameObject;
 
 		// Not sure which of these is actually doing the work.
-		ball.AddComponent<NavBallDrag>();
+		// ball.AddComponent<NavBallDrag>();
 		frame.AddComponent<NavBallDrag>();
 
 		// Show the object tree while I work out which object actually
@@ -29,20 +29,32 @@ public class NavBallAttacher : MonoBehaviour
 }
 public class NavBallDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler
 {
+	float ptrstart;
+	float ballstart;
+
 	public void OnBeginDrag(PointerEventData evtdata)
 	{
-		print("Navball got begindrag");
+		print("Navball drag start");
+		print(transform.position);
+		ptrstart = evtdata.position.x;
+		ballstart = transform.position.x;
 	}
 	public void OnDrag(PointerEventData evtdata)
 	{
-		transform.position = evtdata.position;
+		float x = ballstart + (evtdata.position.x - ptrstart);
+		float y = transform.position.y;
+		float z = transform.position.z;
+		transform.position = new Vector3(x, y, z);
+		print(transform.position);
 	}
 	public void OnEndDrag(PointerEventData evtdata)
 	{
 		print("Drag finished");
+		print(transform.position);
 	}
 	public void OnDrop(PointerEventData evtdata)
 	{
 		print("Navball dropped");
+		print(transform.position);
 	}
 }
