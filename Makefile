@@ -2,10 +2,14 @@
 
 libdir = libs
 builddir = build
+confdir = $(builddir)/PluginData/DraggableNavball
 
-all : $(builddir)/DraggableNavBall.dll
+all : $(builddir)/DraggableNavball.dll $(confdir)/DraggableNavball.cfg
 
-build/DraggableNavBall.dll : dragnavball.cs
+$(builddir) :
+	mkdir -p $<
+
+$(builddir)/DraggableNavball.dll : dragnavball.cs
 	mcs $< \
 		-target:library \
 		-out:$@ \
@@ -14,5 +18,8 @@ build/DraggableNavBall.dll : dragnavball.cs
 		-reference:UnityEngine.dll \
 		-reference:UnityEngine.UI.dll
 
+$(confdir)/DraggableNavball.cfg : dragnavball.cfg
+	mkdir -p $(confdir)
+	cp -f $< $@
 clean : 
-	-rm $(builddir)/DraggableNavBall.dll
+	-rm -r $(builddir)/*
