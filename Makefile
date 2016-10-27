@@ -1,13 +1,13 @@
-.PHONY : all clean
+.PHONY : all clean mod dist
 
+NAME = DraggableNavball
 LIB = libs
-BUILD = build/DraggableNavball
-SOURCE = src
-CONF = $(BUILD)/PluginData/DraggableNavball
+CONF = build/PluginData/$(NAME)
 
-all : $(BUILD)/DraggableNavball.dll $(CONF)/DraggableNavball.cfg
+all: mod
+mod : build/$(NAME).dll $(CONF)/$(NAME).cfg
 
-$(BUILD)/%.dll : $(SOURCE)/%.cs
+build/%.dll : src/%.cs
 	@mkdir -p $(@D)
 	mcs $< \
 		-target:library \
@@ -17,9 +17,16 @@ $(BUILD)/%.dll : $(SOURCE)/%.cs
 		-reference:UnityEngine.dll \
 		-reference:UnityEngine.UI.dll
 
-$(CONF)/%.cfg : $(SOURCE)/%.cfg
+$(CONF)/%.cfg : src/%.cfg
 	@mkdir -p $(@D)
 	cp -f $< $@
 
+dist : mod
+	@mkdir -p dist
+	ln -sfn ../build dist/$(NAME) && \
+	cd dist && \
+	zip -FSr $(NAME).zip $(NAME)
+
 clean : 
 	-rm -rf build
+	-rm -rf dist
