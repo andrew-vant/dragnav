@@ -51,6 +51,7 @@ public class NavBallDrag : MonoBehaviour, IBeginDragHandler, IDragHandler
 		Vector3 newpos = transform.position;
 		newpos.x = NAVBALL_XCOORD;
 		transform.position = newpos;
+		GameSettings.UI_POS_NAVBALL = NAVBALL_XCOORD * 2 / GameSettings.SCREEN_RESOLUTION_WIDTH;
 	}
 
 	void Start()
