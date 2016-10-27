@@ -1,4 +1,5 @@
 using KSP.UI.Screens.Flight;
+using KSP;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -8,12 +9,18 @@ public class NavBallAttacher : MonoBehaviour
 {
 	void Start()
 	{
-		print("Starting draggable navball");
-		// We want to drag the navball's frame around. The frame is
-		// the grandparent of the ball itself.
-		GameObject ball = FindObjectOfType<NavBall>().gameObject;
-		GameObject frame = ball.transform.parent.gameObject.transform.parent.gameObject;
-		frame.AddComponent<NavBallDrag>();
+		/* When we speak of dragging the navball, what we really want
+		 * is to drag the entire SAS/navball/maneuver control panel.
+		 * It has the type "IVAEVACollapseGroup" but that's not
+		 * available and I'm not sure which assembly provides it.
+		 * Taking the parent of the NavBall works just as well.
+		 *
+		 * This doesn't drag the (invisible) frame around the control
+		 * cluster, but that doesn't seem to hurt anything.
+		 */
+		GameObject navball = FindObjectOfType<NavBall>().gameObject;
+		GameObject cluster = navball.transform.parent.gameObject;
+		cluster.AddComponent<NavBallDrag>();
 	}
 }
 public class NavBallDrag : MonoBehaviour, IBeginDragHandler, IDragHandler
@@ -30,8 +37,28 @@ public class NavBallDrag : MonoBehaviour, IBeginDragHandler, IDragHandler
 	 * the bottom edge of the screen.
 	 */
 
+	[Persistent]
+	float ballpos;
+
 	Vector2 dragstart;
 	Vector3 ballstart;
+
+	void Start()
+	{
+		// FIXME: Load from persistant file here or do nothing.
+		// FIXME: When do we save? On destroy?
+		ballpos = GameSettings.UI_POS_NAVBALL * GameSettings.SCREEN_RESOLUTION_WIDTH / 2f;
+		place(ballpos);
+	}
+
+	void place(float x)
+	{
+		Vector3 newpos = transform.position;
+		newpos.x = x;
+		transform.position = newpos;
+		ballpos = transform.position.x;
+		GameSettings.UI_POS_NAVBALL = ballpos / (GameSettings.SCREEN_RESOLUTION_WIDTH / 2f);
+	}
 
 	public void OnBeginDrag(PointerEventData evtdata)
 	{
@@ -40,8 +67,7 @@ public class NavBallDrag : MonoBehaviour, IBeginDragHandler, IDragHandler
 	}
 	public void OnDrag(PointerEventData evtdata)
 	{
-		Vector3 dragdist = evtdata.position - dragstart;
-		dragdist.Scale(Vector3.right); // flatten the drag vector
-		transform.position = ballstart + dragdist;
+		Vector2 dragdist = evtdata.position - dragstart;
+		place(ballstart.x + dragdist.x);
 	}
 }
