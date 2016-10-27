@@ -16,10 +16,8 @@ public class NavBallAttacher : MonoBehaviour
 		frame.AddComponent<NavBallDrag>();
 	}
 }
-public class NavBallDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler
+public class NavBallDrag : MonoBehaviour, IBeginDragHandler, IDragHandler
 {
-	float ptrstart;
-	float ballstart;
 	/* This component makes the navball draggable. It works by recording
 	 * the pointer and ball's position when a drag starts, then moving the
 	 * ball however far the pointer moved along the X axis.
@@ -32,29 +30,18 @@ public class NavBallDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 	 * the bottom edge of the screen.
 	 */
 
+	Vector2 dragstart;
+	Vector3 ballstart;
+
 	public void OnBeginDrag(PointerEventData evtdata)
 	{
-		print("Navball drag start");
-		print(transform.position);
-		ptrstart = evtdata.position.x;
-		ballstart = transform.position.x;
+		dragstart = evtdata.position;
+		ballstart = transform.position;
 	}
 	public void OnDrag(PointerEventData evtdata)
 	{
-		float x = ballstart + (evtdata.position.x - ptrstart);
-		float y = transform.position.y;
-		float z = transform.position.z;
-		transform.position = new Vector3(x, y, z);
-		print(transform.position);
-	}
-	public void OnEndDrag(PointerEventData evtdata)
-	{
-		print("Drag finished");
-		print(transform.position);
-	}
-	public void OnDrop(PointerEventData evtdata)
-	{
-		print("Navball dropped");
-		print(transform.position);
+		Vector3 dragdist = evtdata.position - dragstart;
+		dragdist.Scale(Vector3.right); // flatten the drag vector
+		transform.position = ballstart + dragdist;
 	}
 }
