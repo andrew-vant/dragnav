@@ -20,6 +20,17 @@ public class NavBallDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 {
 	float ptrstart;
 	float ballstart;
+	/* This component makes the navball draggable. It works by recording
+	 * the pointer and ball's position when a drag starts, then moving the
+	 * ball however far the pointer moved along the X axis.
+	 *
+	 * Simply setting the ball to the pointer's position doesn't work; the
+	 * pointer and ball have different coordinate origins. The pointer's
+	 * X:0 is the left edge of the screen; The ball's X:0 is the center.
+	 *
+	 * Restricting movement to the X axis makes the ball frame slide along
+	 * the bottom edge of the screen.
+	 */
 
 	public void OnBeginDrag(PointerEventData evtdata)
 	{
