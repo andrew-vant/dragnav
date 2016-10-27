@@ -1,7 +1,7 @@
-using KSP.UI.Screens.Flight;
-using KSP;
+using IOUtils = KSP.IO.IOUtils;
+using NavBall = KSP.UI.Screens.Flight.NavBall;
+
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 [KSPAddon(KSPAddon.Startup.Flight, false)]
@@ -11,9 +11,9 @@ public class NavBallAttacher : MonoBehaviour
 	{
 		/* When we speak of dragging the navball, what we really want
 		 * is to drag the entire SAS/navball/maneuver control panel.
-		 * It has the type "IVAEVACollapseGroup" but that's not
-		 * available and I'm not sure which assembly provides it.
-		 * Taking the parent of the NavBall works just as well.
+		 * It has the type "IVAEVACollapseGroup" but I can't figure out
+		 * where that's defined so I can't search for it. Taking the
+		 * parent of the NavBall works just as well.
 		 *
 		 * This doesn't drag the (invisible) frame around the control
 		 * cluster, but that doesn't seem to hurt anything.
@@ -38,26 +38,33 @@ public class NavBallDrag : MonoBehaviour, IBeginDragHandler, IDragHandler
 	 */
 
 	[Persistent]
-	float ballpos;
+	private float NAVBALL_XCOORD;
 
-	Vector2 dragstart;
-	Vector3 ballstart;
+	private Vector2 dragstart;
+	private Vector3 ballstart;
+
+	const string modname = "Draggable Navball";
+	const string cfgfile = "DraggableNavball.cfg";
+
+	private void place_navball()
+	{
+		Vector3 newpos = transform.position;
+		newpos.x = NAVBALL_XCOORD;
+		transform.position = newpos;
+	}
 
 	void Start()
 	{
-		// FIXME: Load from persistant file here or do nothing.
-		// FIXME: When do we save? On destroy?
-		ballpos = GameSettings.UI_POS_NAVBALL * GameSettings.SCREEN_RESOLUTION_WIDTH / 2f;
-		place(ballpos);
+		string path = IOUtils.GetFilePathFor(this.GetType(), cfgfile);
+		ConfigNode config = ConfigNode.Load(path);
+		ConfigNode.LoadObjectFromConfig(this, config);
+		place_navball();
 	}
 
-	void place(float x)
+	public float xpos
 	{
-		Vector3 newpos = transform.position;
-		newpos.x = x;
-		transform.position = newpos;
-		ballpos = transform.position.x;
-		GameSettings.UI_POS_NAVBALL = ballpos / (GameSettings.SCREEN_RESOLUTION_WIDTH / 2f);
+		get { NAVBALL_XCOORD = transform.position.x; return NAVBALL_XCOORD; }
+		set { NAVBALL_XCOORD = value; place_navball(); }
 	}
 
 	public void OnBeginDrag(PointerEventData evtdata)
@@ -68,6 +75,13 @@ public class NavBallDrag : MonoBehaviour, IBeginDragHandler, IDragHandler
 	public void OnDrag(PointerEventData evtdata)
 	{
 		Vector2 dragdist = evtdata.position - dragstart;
-		place(ballstart.x + dragdist.x);
+		xpos = ballstart.x + dragdist.x;
+	}
+	public void OnDestroy()
+	{
+		ConfigNode node = new ConfigNode(modname);
+		ConfigNode.CreateConfigFromObject(this, node);
+		string path = IOUtils.GetFilePathFor(this.GetType(), cfgfile);
+		node.Save(path);
 	}
 }
