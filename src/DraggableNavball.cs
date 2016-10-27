@@ -38,7 +38,7 @@ public class NavBallDrag : MonoBehaviour, IBeginDragHandler, IDragHandler
 	 */
 
 	[Persistent]
-	private float NAVBALL_XCOORD;
+	private float NAVBALL_XCOORD; // used only for load/save
 
 	private Vector2 dragstart;
 	private Vector3 ballstart;
@@ -46,26 +46,24 @@ public class NavBallDrag : MonoBehaviour, IBeginDragHandler, IDragHandler
 	const string modname = "Draggable Navball";
 	const string cfgfile = "DraggableNavball.cfg";
 
-	private void place_navball()
-	{
-		Vector3 newpos = transform.position;
-		newpos.x = NAVBALL_XCOORD;
-		transform.position = newpos;
-		GameSettings.UI_POS_NAVBALL = NAVBALL_XCOORD * 2 / GameSettings.SCREEN_RESOLUTION_WIDTH;
-	}
-
 	void Start()
 	{
 		string path = IOUtils.GetFilePathFor(this.GetType(), cfgfile);
 		ConfigNode config = ConfigNode.Load(path);
 		ConfigNode.LoadObjectFromConfig(this, config);
-		place_navball();
+		xpos = NAVBALL_XCOORD;
 	}
 
 	public float xpos
 	{
-		get { NAVBALL_XCOORD = transform.position.x; return NAVBALL_XCOORD; }
-		set { NAVBALL_XCOORD = value; place_navball(); }
+		get { return transform.position.x; }
+		set
+		{
+			Vector3 newpos = transform.position;
+			newpos.x = value;
+			transform.position = newpos;
+			GameSettings.UI_POS_NAVBALL = value * 2 / GameSettings.SCREEN_RESOLUTION_WIDTH;
+		}
 	}
 
 	public void OnBeginDrag(PointerEventData evtdata)
@@ -80,9 +78,9 @@ public class NavBallDrag : MonoBehaviour, IBeginDragHandler, IDragHandler
 	}
 	public void OnDestroy()
 	{
-		ConfigNode node = new ConfigNode(modname);
-		ConfigNode.CreateConfigFromObject(this, node);
+		NAVBALL_XCOORD = xpos;
+		ConfigNode config = ConfigNode.CreateConfigFromObject(this);
 		string path = IOUtils.GetFilePathFor(this.GetType(), cfgfile);
-		node.Save(path);
+		config.Save(path);
 	}
 }
