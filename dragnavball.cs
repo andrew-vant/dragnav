@@ -9,22 +9,11 @@ public class NavBallAttacher : MonoBehaviour
 	void Start()
 	{
 		print("Starting draggable navball");
+		// We want to drag the navball's frame around. The frame is
+		// the grandparent of the ball itself.
 		GameObject ball = FindObjectOfType<NavBall>().gameObject;
 		GameObject frame = ball.transform.parent.gameObject.transform.parent.gameObject;
-
-		// Not sure which of these is actually doing the work.
-		// ball.AddComponent<NavBallDrag>();
 		frame.AddComponent<NavBallDrag>();
-
-		// Show the object tree while I work out which object actually
-		// needs to be dragged...
-		string path = "/";
-		for (GameObject obj = ball.gameObject; obj != null; obj = obj.transform.parent.gameObject)
-		{
-			print(obj.GetType().Name + ":" + obj.name);
-			path = "/" + obj.GetType().Name + ":" + obj.name + path;
-		}
-		print("Done");
 	}
 }
 public class NavBallDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler
