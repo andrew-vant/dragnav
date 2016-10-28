@@ -1,0 +1,5 @@
+# Don't add output or library dirs
+
+libs
+build
+dist
