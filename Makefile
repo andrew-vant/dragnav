@@ -5,7 +5,7 @@ LIB = libs
 CONF = build/PluginData/$(NAME)
 
 all: mod
-mod : build/$(NAME).dll $(CONF)/$(NAME).cfg
+mod : build/$(NAME).dll build/README.md build/LICENSE.md $(CONF)/$(NAME).cfg
 
 build/%.dll : src/%.cs
 	@mkdir -p $(@D)
@@ -16,6 +16,10 @@ build/%.dll : src/%.cs
 		-reference:Assembly-CSharp.dll \
 		-reference:UnityEngine.dll \
 		-reference:UnityEngine.UI.dll
+
+build/%.md : %.md
+	@mkdir -p $(@D)
+	cp -f $< $@
 
 $(CONF)/%.cfg : src/%.cfg
 	@mkdir -p $(@D)
