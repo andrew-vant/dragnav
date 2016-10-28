@@ -67,6 +67,14 @@ public class NavBallDrag : MonoBehaviour, IBeginDragHandler, IDragHandler
 		get { return transform.position.x; }
 		set
 		{
+			// Prevent the ball from ending up offscreen where we
+			// can't drag it back.
+			int right_edge = GameSettings.SCREEN_RESOLUTION_WIDTH / 2;
+			int left_edge  = -right_edge;
+			if (value > right_edge) value = right_edge;
+			if (value < left_edge)  value = left_edge;
+
+			// Move the ball.
 			Vector3 newpos = transform.position;
 			newpos.x = value;
 			transform.position = newpos;
@@ -77,7 +85,7 @@ public class NavBallDrag : MonoBehaviour, IBeginDragHandler, IDragHandler
 			 * uses a -1:1 range, while we have a pixel offset
 			 * from center, so a conversion is necessary.
 			 */
-			GameSettings.UI_POS_NAVBALL = value * 2 / GameSettings.SCREEN_RESOLUTION_WIDTH;
+			GameSettings.UI_POS_NAVBALL = value / right_edge;
 		}
 	}
 
