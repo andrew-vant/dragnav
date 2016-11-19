@@ -1,5 +1,5 @@
 using IOUtils = KSP.IO.IOUtils;
-using NavBall = KSP.UI.Screens.Flight.NavBall;
+using Altimeter = KSP.UI.Screens.Flight.AltitudeTumbler;
 
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -14,7 +14,7 @@ using UnityEngine.EventSystems;
  */
 
 [KSPAddon(KSPAddon.Startup.Flight, false)]
-public class NavBallAttacher : MonoBehaviour
+public class AltimeterAttacher : MonoBehaviour
 {
 	void Start()
 	{
@@ -27,12 +27,13 @@ public class NavBallAttacher : MonoBehaviour
 		 * This doesn't drag the (invisible) frame around the navball's
 		 * control cluster, but that doesn't seem to hurt anything.
 		 */
-		GameObject navball = FindObjectOfType<NavBall>().gameObject;
-		GameObject cluster = navball.transform.parent.gameObject;
-		cluster.AddComponent<NavBallDrag>();
+		GameObject altimeter = GameObject.Find("Altimeter");
+		GameObject slideframeparent = altimeter.transform.parent.gameObject;
+		GameObject cluster = slideframeparent.transform.parent.gameObject;
+		cluster.AddComponent<AltDrag>();
 	}
 }
-public class NavBallDrag : MonoBehaviour, IBeginDragHandler, IDragHandler
+public class AltDrag : MonoBehaviour, IBeginDragHandler, IDragHandler
 {
 	/* This component makes the navball draggable. Movement is restricted
 	 * to the x axis, so the ball slides along the bottom edge of the
@@ -44,19 +45,19 @@ public class NavBallDrag : MonoBehaviour, IBeginDragHandler, IDragHandler
 	 * variable that serves just as a place to keep save-load data.
 	 */
 	[Persistent]
-	private float NAVBALL_XCOORD;
+	private float ALTIMETER_XCOORD;
 
 	private Vector2 dragstart;
-	private Vector3 ballstart;
+	private Vector3 altstart;
 
-	const string cfgfile = "DraggableNavball.cfg";
+	const string cfgfile = "DraggableAltimeter.cfg";
 
 	void Start()
 	{
 		string path = IOUtils.GetFilePathFor(this.GetType(), cfgfile);
 		ConfigNode config = ConfigNode.Load(path);
 		ConfigNode.LoadObjectFromConfig(this, config);
-		xpos = NAVBALL_XCOORD;
+		xpos = ALTIMETER_XCOORD;
 	}
 
 	public float xpos
@@ -78,14 +79,6 @@ public class NavBallDrag : MonoBehaviour, IBeginDragHandler, IDragHandler
 			Vector3 newpos = transform.position;
 			newpos.x = value;
 			transform.position = newpos;
-
-			/* Sometimes outside forces set the navball's
-			 * position. They seem to use GameSettings.UI_POS_NAVBALL
-			 * to get it, so let's override that. UI_POS_NAVBALL
-			 * uses a -1:1 range, while we have a pixel offset
-			 * from center, so a conversion is necessary.
-			 */
-			GameSettings.UI_POS_NAVBALL = value / right_edge;
 		}
 	}
 
@@ -94,7 +87,7 @@ public class NavBallDrag : MonoBehaviour, IBeginDragHandler, IDragHandler
 		/* Record the pointer and ball positions when dragging starts.
 		 * We'll need them in OnDrag. */
 		dragstart = evtdata.position;
-		ballstart = transform.position;
+		altstart = transform.position;
 	}
 	public void OnDrag(PointerEventData evtdata)
 	{
@@ -105,13 +98,19 @@ public class NavBallDrag : MonoBehaviour, IBeginDragHandler, IDragHandler
 		 * worry about small errors adding up.
 		 */
 		Vector2 dragdist = evtdata.position - dragstart;
-		xpos = ballstart.x + dragdist.x;
+		xpos = altstart.x + dragdist.x;
 	}
+
+	public void Update()
+	{
+		xpos = xpos;
+	}
+
 	public void OnDestroy()
 	{
 		// I'm not sure when you're "supposed" to save plugin data.
 		// This was the best I could come up with.
-		NAVBALL_XCOORD = xpos;
+		ALTIMETER_XCOORD = xpos;
 		ConfigNode config = ConfigNode.CreateConfigFromObject(this);
 		string path = IOUtils.GetFilePathFor(this.GetType(), cfgfile);
 		config.Save(path);
