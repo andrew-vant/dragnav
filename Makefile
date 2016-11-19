@@ -1,6 +1,6 @@
 .PHONY : all clean mod dist
 
-NAME = DraggableNavball
+NAME = DraggableAltimeter
 LIB = libs
 CONF = build/PluginData/$(NAME)
 
