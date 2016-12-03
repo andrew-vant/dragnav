@@ -22,6 +22,7 @@ public class Attacher : MonoBehaviour
 		 * altimeter object. (Found this using DebugStuff for the
 		 * curious)
 		 */
+
 		GameObject altimeter = GameObject.Find("Altimeter");
 		GameObject slideframeparent = altimeter.transform.parent.gameObject;
 		GameObject cluster = slideframeparent.transform.parent.gameObject;
@@ -99,7 +100,7 @@ public class Dragger : MonoBehaviour, IBeginDragHandler, IDragHandler
 
 	public void Update()
 	{
-		xpos = xpos;
+		xpos = ALTIMETER_XCOORD;
 	}
 
 	public void OnDestroy()
