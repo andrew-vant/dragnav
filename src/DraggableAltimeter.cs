@@ -30,7 +30,7 @@ public class Attacher : MonoBehaviour
 		Destroy(gameObject);
 	}
 }
-public class Dragger : MonoBehaviour, IBeginDragHandler, IDragHandler
+public class Dragger : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
 	/* This makes the altimeter draggable. Movement is restricted to the x
 	 * axis, so it slides along the edge of the screen.
@@ -103,10 +103,8 @@ public class Dragger : MonoBehaviour, IBeginDragHandler, IDragHandler
 		xpos = ALTIMETER_XCOORD;
 	}
 
-	public void OnDestroy()
+	public void OnEndDrag(PointerEventData evtdata)
 	{
-		// I'm not sure when you're "supposed" to save plugin data.
-		// This was the best I could come up with.
 		ALTIMETER_XCOORD = xpos;
 		ConfigNode config = ConfigNode.CreateConfigFromObject(this);
 		string path = IOUtils.GetFilePathFor(this.GetType(), cfgfile);
