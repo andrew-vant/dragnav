@@ -30,9 +30,10 @@ public class NavBallAttacher : MonoBehaviour
 		GameObject navball = FindObjectOfType<NavBall>().gameObject;
 		GameObject cluster = navball.transform.parent.gameObject;
 		cluster.AddComponent<NavBallDrag>();
+		Destroy(gameObject);
 	}
 }
-public class NavBallDrag : MonoBehaviour, IBeginDragHandler, IDragHandler
+public class NavBallDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
 	/* This component makes the navball draggable. Movement is restricted
 	 * to the x axis, so the ball slides along the bottom edge of the
@@ -77,6 +78,7 @@ public class NavBallDrag : MonoBehaviour, IBeginDragHandler, IDragHandler
 			// Move the ball.
 			Vector3 newpos = transform.position;
 			newpos.x = value;
+			NAVBALL_XCOORD = value;
 			transform.position = newpos;
 
 			/* Sometimes outside forces set the navball's
@@ -96,6 +98,7 @@ public class NavBallDrag : MonoBehaviour, IBeginDragHandler, IDragHandler
 		dragstart = evtdata.position;
 		ballstart = transform.position;
 	}
+
 	public void OnDrag(PointerEventData evtdata)
 	{
 		/* See how far the pointer has dragged and offset the navball
@@ -107,10 +110,14 @@ public class NavBallDrag : MonoBehaviour, IBeginDragHandler, IDragHandler
 		Vector2 dragdist = evtdata.position - dragstart;
 		xpos = ballstart.x + dragdist.x;
 	}
-	public void OnDestroy()
+
+	public void Update()
 	{
-		// I'm not sure when you're "supposed" to save plugin data.
-		// This was the best I could come up with.
+		xpos = NAVBALL_XCOORD;
+	}
+
+	public void OnEndDrag(PointerEventData evtdata)
+	{
 		NAVBALL_XCOORD = xpos;
 		ConfigNode config = ConfigNode.CreateConfigFromObject(this);
 		string path = IOUtils.GetFilePathFor(this.GetType(), cfgfile);
