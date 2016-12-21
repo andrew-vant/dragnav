@@ -5,7 +5,7 @@ LIB = libs
 CONF = build/PluginData/$(NAME)
 
 all: mod
-mod : build/$(NAME).dll build/README.md build/LICENSE.md $(CONF)/$(NAME).cfg
+mod : build/$(NAME).dll build/README.md build/LICENSE.md build/CHANGES.md $(CONF)/$(NAME).cfg
 
 build/%.dll : src/%.cs
 	@mkdir -p $(@D)
