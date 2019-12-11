@@ -1,6 +1,6 @@
 name:    Draggable_Navball
 url:     https://github.com/andrew-vant/dragnav/master/DraggableNavball.version
-version: 1.0.1+1
-kspver:  1.4.1
-kspmin:  1.2.2
-kspmax:  1.4.99
+version: 1.0.1+2
+kspver:  1.8.1
+kspmin:  1.8.0
+kspmax:  1.8.99
