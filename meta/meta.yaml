@@ -1,6 +1,9 @@
-name:    Draggable_Navball
-url:     https://github.com/andrew-vant/dragnav/master/DraggableNavball.version
-version: 1.0.1+2
-kspver:  1.8.1
-kspmin:  1.8.0
-kspmax:  1.8.99
+name: Draggable_Navball
+urls:
+  ckan_ver:  https://github.com/andrew-vant/dragnav/releases/latest/download/ckan.version.json
+  releases:  https://github.com/andrew-vant/dragnav/releases
+  changelog: https://raw.githubusercontent.com/andrew-vant/dragnav/master/CHANGES.md
+ksp:
+  version:     1.8.1
+  version_min: 1.8.0
+  version_max: null

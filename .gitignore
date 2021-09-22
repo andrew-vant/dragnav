@@ -1,5 +1,7 @@
 # Don't add output or library dirs
 
 libs
+libs-old
 build
 dist
+out
