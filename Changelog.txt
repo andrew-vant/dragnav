@@ -1,0 +1,10 @@
+2.0.0
+	Adoption by Linuxgurugamer of both DraggableAltimeter and DraggableNavball
+	Merging of code
+	Eliminated the reinitialization of the values every time the flight scene is entered
+	Removal of extra Update() call due to the merging of the mods
+		The altimeter Xpos needs to be constantly reset, KSP seems to always reset it to 0
+		The navball Xpos doesn't need that, probably due to it now being movable in the game config
+
+	Moved merged mod code/directories into new mod directory
+	
