@@ -1,12 +1,12 @@
-VPATH = src meta
-NAME = DraggableNavball
+NAME = DraggableControls
+.PHONY : all mod meta dist release clean
+
 LIB = libs
 DOCS = $(wildcard *.md)
 OUTDIR = out
 BUILDDIR = $(OUTDIR)/$(NAME)
 DATAPATH = PluginData/$(NAME)
 
-.PHONY : all mod meta dist release clean
 .DELETE_ON_ERROR :
 
 all : dist

@@ -1,12 +1,10 @@
-# Draggable Navball
+# Draggable Altimeter
 
-Draggable Navball is a small mod for Kerbal Space Program. It does exactly
-what it says on the tin: Allows you to drag the navball somewhere more
-convenient than its default position directly under your rocket.
+Draggable Altimeter is a small mod for Kerbal Space Program. It does exactly
+what it says on the tin: Allows you to drag the altimeter somewhere more
+convenient than its default position.
 
-The ball's position will be remembered across scenes and game restarts. Note
-that the UI\_POS\_NAVBALL option in settings.cfg is ignored while using
-Draggable Navball.
+The altimeter's position will be remembered across scenes and game restarts.
 
 ## Building
 
@@ -28,5 +26,5 @@ your own. Looking through the makefile may help you set up your own build.
 
 ## Installing
 
-Like any other KSP mod, you can copy or unzip the DraggableNavball directory
+Like any other KSP mod, you can copy or unzip the DraggableAltimeter directory
 into the `GameData` KSP folder. Or, preferably, install it from CKAN.
