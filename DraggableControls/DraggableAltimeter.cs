@@ -33,7 +33,6 @@ namespace DraggableControls
 		public void Update()
 		{
 			Config.altimeterXpos = Config.ALTIMETER_XCOORD;
-			//Config.navBallXpos = Config.NAVBALL_XCOORD;
 		}
 
 		public void OnBeginDrag(PointerEventData evtdata)
@@ -58,7 +57,6 @@ namespace DraggableControls
 
 		public void OnEndDrag(PointerEventData evtdata)
 		{
-			Config.ALTIMETER_XCOORD = Config.altimeterXpos;
 			Config.Save();
 		}
 	}

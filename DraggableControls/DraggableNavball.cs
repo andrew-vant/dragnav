@@ -1,6 +1,3 @@
-using IOUtils = KSP.IO.IOUtils;
-using NavBall = KSP.UI.Screens.Flight.NavBall;
-
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -17,9 +14,10 @@ namespace DraggableControls
 		private Vector3 ballstart;
 
 		void Start()
-		{
+		{			
 			Config.navBallTransform = transform;
 			Config.navBallXpos = Config.NAVBALL_XCOORD;
+			Config.navBallYpos = Config.NAVBALL_YCOORD;
 		}
 
 		public void OnBeginDrag(PointerEventData evtdata)
@@ -40,11 +38,13 @@ namespace DraggableControls
 			 */
 			Vector2 dragdist = evtdata.position - dragstart;
 			Config.navBallXpos = ballstart.x + dragdist.x;
+			if (HighLogic.CurrentGame.Parameters.CustomParams<DASettings>().allowNavVertical)
+				Config.navBallYpos = ballstart.y + dragdist.y - Config.VERTICAL_ADJUST_BOTTOM;
+
 		}
 
 		public void OnEndDrag(PointerEventData evtdata)
 		{
-			Config.NAVBALL_XCOORD = Config.navBallXpos;
 			Config.Save();
 		}
 	}

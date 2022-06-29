@@ -1,10 +1,17 @@
 2.0.0
 	Adoption by Linuxgurugamer of both DraggableAltimeter and DraggableNavball
 	Merging of code
+	Added InstallChecker.cs
+	Added AssemblyVersion.tt (used to read the .version file and generate AssemblyVersion and FileVersion statements)
 	Eliminated the reinitialization of the values every time the flight scene is entered
 	Removal of extra Update() call due to the merging of the mods
 		The altimeter Xpos needs to be constantly reset, KSP seems to always reset it to 0
 		The navball Xpos doesn't need that, probably due to it now being movable in the game config
 
 	Moved merged mod code/directories into new mod directory
-	
+	Added ability to move Navball vertically
+		Note:  1.  After changing the size of the Navball, the Flight scene must be 
+					exited and reentered for the game to properly reinitialize some internal variables
+			   2.  The tab to hide the navball works, but will behave a bit oddly when used
+			   
+	Added stock setting page for option to allow/disallow navball vertical movement
