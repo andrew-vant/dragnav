@@ -1,5 +1,4 @@
 2.0.0
-	Adoption by Linuxgurugamer of both DraggableAltimeter and DraggableNavball
 	Merging of code
 	Added InstallChecker.cs
 	Added AssemblyVersion.tt (used to read the .version file and generate AssemblyVersion and FileVersion statements)
