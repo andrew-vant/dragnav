@@ -1,6 +1,6 @@
 name: Draggable Navball
 urls:
-  ckan_ver:  https://github.com/andrew-vant/dragnav/releases/latest/download/ckan.version.json
+  ckan_ver:  https://github.com/andrew-vant/dragnav/releases/latest/download/DraggableNavball.version
   releases:  https://github.com/andrew-vant/dragnav/releases
   changelog: https://raw.githubusercontent.com/andrew-vant/dragnav/master/CHANGES.md
 ksp:
