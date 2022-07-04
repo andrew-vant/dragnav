@@ -1,36 +1,56 @@
-.PHONY : all clean mod dist
-
+VPATH = src meta
 NAME = DraggableNavball
 LIB = libs
-CONF = build/PluginData/$(NAME)
+DOCS = $(wildcard *.md)
+OUTDIR = out
+BUILDDIR = $(OUTDIR)/$(NAME)
+DATAPATH = PluginData/$(NAME)
 
-all: mod
-mod : build/$(NAME).dll build/README.md build/LICENSE.md build/CHANGES.md $(CONF)/$(NAME).cfg
+.PHONY : all mod meta dist release clean
+.DELETE_ON_ERROR :
 
-build/%.dll : src/%.cs
-	@mkdir -p $(@D)
+all : dist
+mod : $(addprefix $(BUILDDIR)/, $(DOCS) $(NAME).dll $(DATAPATH)/$(NAME).cfg)
+meta : $(OUTDIR)/$(NAME).version
+dist : $(OUTDIR)/$(NAME).zip
+release: clean meta dist
+
+$(OUTDIR) $(BUILDDIR):
+	mkdir -p $@
+
+$(BUILDDIR)/%.dll : %.cs | $(BUILDDIR)
 	mcs $< \
 		-target:library \
 		-out:$@ \
 		-lib:$(LIB) \
 		-reference:Assembly-CSharp.dll \
 		-reference:UnityEngine.dll \
+		-reference:UnityEngine.CoreModule \
 		-reference:UnityEngine.UI.dll
 
-build/%.md : %.md
-	@mkdir -p $(@D)
+$(BUILDDIR)/$(DATAPATH)/%.cfg : %.cfg | $(BUILDDIR)
+	-mkdir -p $(@D)
 	cp -f $< $@
 
-$(CONF)/%.cfg : src/%.cfg
-	@mkdir -p $(@D)
+$(BUILDDIR)/%.md : %.md | $(BUILDDIR)
 	cp -f $< $@
 
-dist : mod
-	@mkdir -p dist
-	ln -sfn ../build dist/$(NAME) && \
-	cd dist && \
-	zip -FSr $(NAME).zip $(NAME)
+# NOTE: meta.py returns nonzero if the build should not be released
+# (e.g no version tag or dirty tree). Make will delete the file in that
+# case per .DELETE_ON_ERROR above, to try to prevent zips with bogus version
+# information from getting into the wild. To force it to keep the file
+# (e.g. for debugging), use `make -i meta`
+$(BUILDDIR)/$(NAME).version : meta.py meta.yaml version.yaml.jinja | $(BUILDDIR)
+	$< > $@
+
+$(OUTDIR)/$(NAME).version : $(BUILDDIR)/$(NAME).version | $(OUTDIR)
+	cp -vf $< $@
+
+# NOTE: the metadata file is intentionally not a prereq here, to allow
+# test zips to be built. The meta file will get into the zip only if
+# it's intentionally built first.
+$(OUTDIR)/$(NAME).zip : mod
+	cd $(OUTDIR) && zip -FSr $(NAME).zip $(NAME)
 
 clean : 
-	-rm -rf build
-	-rm -rf dist
+	-rm -rvf $(OUTDIR)
