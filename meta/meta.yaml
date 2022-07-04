@@ -6,4 +6,4 @@ urls:
 ksp:
   version:     1.8.1
   version_min: 1.8.0
-  version_max: null
+  version_max: 1.12.99
