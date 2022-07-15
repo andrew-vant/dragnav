@@ -14,7 +14,7 @@ namespace DraggableControls
 		private Vector3 ballstart;
 
 		void Start()
-		{			
+		{
 			Config.navBallTransform = transform;
 			Config.navBallXpos = Config.NAVBALL_XCOORD;
 			Config.navBallYpos = Config.NAVBALL_YCOORD;

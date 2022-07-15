@@ -1,4 +1,4 @@
-﻿using IOUtils = KSP.IO.IOUtils;
+using IOUtils = KSP.IO.IOUtils;
 using NavBall = KSP.UI.Screens.Flight.NavBall;
 
 using UnityEngine;
