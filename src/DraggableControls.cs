@@ -62,7 +62,7 @@ class Screen
 }
 
 
-abstract class Dragger : MonoBehavior, IBeginDragHandler, IDragHandler, IEndDragHandler
+abstract class Dragger : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
 	const string CONFIG_FILE = "DraggableControls.cfg";
 	const string CONFIG_DIR = "GameData/DraggableControls/PluginData";
@@ -76,13 +76,12 @@ abstract class Dragger : MonoBehavior, IBeginDragHandler, IDragHandler, IEndDrag
 	/* DRAGGER SUBCLASSES MUST PROVIDE THE FOLLOWING:
 	 *
 	 * CONFIG_PREFIX specifies the config file key used to save the
-	 * position of the target object. You don't need to make it a
-	 * property as it is here; a const string is fine and expected.
+	 * position of the target object.
 	 *
 	 * target() locates and returns the game object the dragger should
 	 * be attached to.
 	 */
-	public abstract static string CONFIG_PREFIX { get; }
+	const string CONFIG_PREFIX = null;
 	public abstract static GameObject target();
 
 	static Dragger()
@@ -142,10 +141,10 @@ abstract class Dragger : MonoBehavior, IBeginDragHandler, IDragHandler, IEndDrag
 }
 
 
-public class NavballDragger : Dragger
+class NavballDragger : Dragger
 {
 	const string CONFIG_PREFIX = "NAVBALL";
-	public static GameObject target()
+	public static new GameObject target()
 	{
 		/* The SAS/navball/maneuver control cluster has type
 		 * "IVAEVACollapseGroup", but I can't figure out where that's
@@ -160,7 +159,7 @@ public class NavballDragger : Dragger
 		return cluster;
 	}
 
-	public void OnDrag(PointerEventData now)
+	public new void OnDrag(PointerEventData now)
 	{
 		/* Sometimes outside forces set the navball's
 		 * position. They seem to use GameSettings.UI_POS_NAVBALL
@@ -174,10 +173,10 @@ public class NavballDragger : Dragger
 }
 
 
-public class AltimeterDragger : Dragger
+class AltimeterDragger : Dragger
 {
 	const string CONFIG_PREFIX = "ALTIMETER";
-	public static GameObject target()
+	public static new GameObject target()
 	{
 		/* The altimeter's control cluster is the grandparent of the
 		 * altimeter object. Not sure of a more concise way to get a
