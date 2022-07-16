@@ -1,6 +1,7 @@
+using System;
+
 using IOUtils = KSP.IO.IOUtils;
 using NavBall = KSP.UI.Screens.Flight.NavBall;
-
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -23,22 +24,17 @@ public class DraggerAttacher : MonoBehaviour
 {
 	void Start()
 	{
-		/* To support more components, add them to this list
+		/* To support more components, add them here
 		 *
 		 * NOTE: I wonder if I can iterate over subclasses of Dragger to
 		 * automagically generate the list...
 		 */
-		Dragger[] draggers = {
-			NavballDragger,
-			AltimeterDragger,
-		};
-		foreach (var dragger in draggers)
-		{
-			dragger.target().AddComponent<dragger>;
-		}
+		NavballDragger.target().AddComponent<NavballDragger>();
+		AltimeterDragger.target().AddComponent<AltimeterDragger>();
 		Destroy(gameObject);
 	}
 }
+
 
 class Screen
 {
@@ -70,8 +66,9 @@ abstract class Dragger : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 	protected static ConfigNode config;
 
 	private PointerEventData start;
-	private Vector3 pos_start;
+	private Vector2 pos_start;
 	private bool lock_vertical = true;
+
 
 	/* DRAGGER SUBCLASSES MUST PROVIDE THE FOLLOWING:
 	 *
@@ -81,29 +78,29 @@ abstract class Dragger : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 	 * target() locates and returns the game object the dragger should
 	 * be attached to.
 	 */
-	const string CONFIG_PREFIX = null;
-	public abstract static GameObject target();
+	public abstract string CONFIG_PREFIX { get; }
+	public static GameObject target() { throw new NotImplementedException(); }
 
 	static Dragger()
 	{
 		/* I don't know of a hook to run a static method on KSP startup
 		 * without trying to create an instance (which it can't for an
 		 * abstract); a static constructor should do the job though. */
-		CONFIG_PATH = IOUtils.GetFilePathFor(this.GetType(), CONFIG_FILE);
+		CONFIG_PATH = IOUtils.GetFilePathFor(typeof(Dragger), CONFIG_FILE);
 		config = ConfigNode.Load(CONFIG_PATH);
 	}
 
 	public void Start()
 	{
 		lock_vertical = bool.Parse(config.GetValue($"{CONFIG_PREFIX}_VLOCK"));
-		var pos = Vector2(
+		var pos = new Vector2(
 			float.Parse(config.GetValue($"{CONFIG_PREFIX}_XPOS")),
 			float.Parse(config.GetValue($"{CONFIG_PREFIX}_YPOS"))
 			);
 		reposition(pos);
 	}
 
-	protected void reposition(Vector2 pos)
+	protected virtual void reposition(Vector2 pos)
 	{
 		if (lock_vertical) pos.y = transform.position.y;
 		pos.x = Mathf.Clamp(pos.x, Screen.left, Screen.right);
@@ -128,7 +125,7 @@ abstract class Dragger : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 		 * worry about small float errors adding up.
 		 */
 		var delta = now.position - start.position;
-		reposition(start.position + delta);
+		reposition(pos_start + delta);
 	}
 
 	public void OnEndDrag(PointerEventData evtdata)
@@ -143,7 +140,7 @@ abstract class Dragger : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 
 class NavballDragger : Dragger
 {
-	const string CONFIG_PREFIX = "NAVBALL";
+	public override string CONFIG_PREFIX { get; } = "NAVBALL";
 	public static new GameObject target()
 	{
 		/* The SAS/navball/maneuver control cluster has type
@@ -159,7 +156,7 @@ class NavballDragger : Dragger
 		return cluster;
 	}
 
-	public new void OnDrag(PointerEventData now)
+	protected override void reposition(Vector2 pos)
 	{
 		/* Sometimes outside forces set the navball's
 		 * position. They seem to use GameSettings.UI_POS_NAVBALL
@@ -167,7 +164,7 @@ class NavballDragger : Dragger
 		 * uses a -1:1 range, while we have a pixel offset
 		 * from center, so a conversion is necessary.
 		 */
-		base.OnDrag(now);
+		base.reposition(pos);
 		GameSettings.UI_POS_NAVBALL = transform.position.x / Screen.right;
 	}
 }
@@ -175,7 +172,7 @@ class NavballDragger : Dragger
 
 class AltimeterDragger : Dragger
 {
-	const string CONFIG_PREFIX = "ALTIMETER";
+	public override string CONFIG_PREFIX { get; } = "ALTIMETER";
 	public static new GameObject target()
 	{
 		/* The altimeter's control cluster is the grandparent of the
