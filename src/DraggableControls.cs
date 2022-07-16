@@ -32,7 +32,7 @@ public class DraggerAttacher : MonoBehaviour
 			NavballDragger,
 			AltimeterDragger,
 		};
-		foreach (dragger in draggers)
+		foreach (var dragger in draggers)
 		{
 			dragger.target().AddComponent<dragger>;
 		}
@@ -64,8 +64,8 @@ class Screen
 
 abstract class Dragger : MonoBehavior, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-	const static string CONFIG_FILE = "DraggableControls.cfg";
-	const static string CONFIG_DIR = "GameData/DraggableControls/PluginData";
+	const string CONFIG_FILE = "DraggableControls.cfg";
+	const string CONFIG_DIR = "GameData/DraggableControls/PluginData";
 	private static string CONFIG_PATH;
 	protected static ConfigNode config;
 
@@ -76,12 +76,13 @@ abstract class Dragger : MonoBehavior, IBeginDragHandler, IDragHandler, IEndDrag
 	/* DRAGGER SUBCLASSES MUST PROVIDE THE FOLLOWING:
 	 *
 	 * CONFIG_PREFIX specifies the config file key used to save the
-	 * position of the target object.
+	 * position of the target object. You don't need to make it a
+	 * property as it is here; a const string is fine and expected.
 	 *
 	 * target() locates and returns the game object the dragger should
 	 * be attached to.
 	 */
-	public static abstract string CONFIG_PREFIX;
+	public abstract static string CONFIG_PREFIX { get; }
 	public abstract static GameObject target();
 
 	static Dragger()
@@ -97,10 +98,10 @@ abstract class Dragger : MonoBehavior, IBeginDragHandler, IDragHandler, IEndDrag
 	{
 		lock_vertical = bool.Parse(config.GetValue($"{CONFIG_PREFIX}_VLOCK"));
 		var pos = Vector2(
-			float.Parse(config.GetValue($"{CONFIG_PREFIX}_XPOS"))
+			float.Parse(config.GetValue($"{CONFIG_PREFIX}_XPOS")),
 			float.Parse(config.GetValue($"{CONFIG_PREFIX}_YPOS"))
-			)
-		reposition(pos)
+			);
+		reposition(pos);
 	}
 
 	protected void reposition(Vector2 pos)
@@ -143,7 +144,7 @@ abstract class Dragger : MonoBehavior, IBeginDragHandler, IDragHandler, IEndDrag
 
 public class NavballDragger : Dragger
 {
-	public static string CONFIG_VAR_PREFIX = "NAVBALL";
+	const string CONFIG_PREFIX = "NAVBALL";
 	public static GameObject target()
 	{
 		/* The SAS/navball/maneuver control cluster has type
@@ -175,7 +176,7 @@ public class NavballDragger : Dragger
 
 public class AltimeterDragger : Dragger
 {
-	public static string CONFIG_VAR_PREFIX = "ALTIMETER";
+	const string CONFIG_PREFIX = "ALTIMETER";
 	public static GameObject target()
 	{
 		/* The altimeter's control cluster is the grandparent of the
