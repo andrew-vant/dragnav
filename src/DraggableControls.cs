@@ -24,10 +24,15 @@ public class DraggerAttacher : MonoBehaviour
 {
 	void Start()
 	{
-		/* To support more components, add them here
+		/* TODO: I'm unhappy with this. I *want* to make a component
+		 * draggable by simply subclassing Dragger and providing an
+		 * appropriate targeting method. I know how to do that in
+		 * Python (using classmethods and __init_subclass__), but I
+		 * can't figure out the equivalent in C#.
 		 *
-		 * NOTE: I wonder if I can iterate over subclasses of Dragger to
-		 * automagically generate the list...
+		 * If I *did* figure it out, third party modders could make
+		 * things draggable without requiring changes to dragctrl
+		 * itself.
 		 */
 		NavballDragger.target().AddComponent<NavballDragger>();
 		AltimeterDragger.target().AddComponent<AltimeterDragger>();
@@ -48,8 +53,8 @@ class Screen
 
 	static Screen()
 	{
-		width = GameSettings.SCREEN_RESOLUTION_WIDTH / 2;
-		height = GameSettings.SCREEN_RESOLUTION_HEIGHT / 2;
+		width = GameSettings.SCREEN_RESOLUTION_WIDTH;
+		height = GameSettings.SCREEN_RESOLUTION_HEIGHT;
 		right = width / 2;
 		left = width / -2;
 		top = height / 2;
@@ -65,8 +70,9 @@ abstract class Dragger : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 	private static string CONFIG_PATH;
 	protected static ConfigNode config;
 
-	private PointerEventData start;
+	private Vector2 drag_start;
 	private Vector2 pos_start;
+	private Vector2 pos_last;
 	private bool lock_vertical = true;
 
 
@@ -102,17 +108,19 @@ abstract class Dragger : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 
 	protected virtual void reposition(Vector2 pos)
 	{
-		if (lock_vertical) pos.y = transform.position.y;
-		pos.x = Mathf.Clamp(pos.x, Screen.left, Screen.right);
-		pos.y = Mathf.Clamp(pos.y, Screen.top, Screen.bottom);
-		transform.position = pos;
+		Vector3 newpos = transform.position;
+		newpos.x = Mathf.Clamp(pos.x, Screen.left, Screen.right);
+		if (!lock_vertical)
+			newpos.y = Mathf.Clamp(pos.y, Screen.top, Screen.bottom);
+		pos_last = newpos;
+		transform.position = newpos;
 	}
 
 	public void OnBeginDrag(PointerEventData evt)
 	{
 		/* Record the event and the object position when dragging
 		 * starts. We'll need them in OnDrag. */
-		start = evt;
+		drag_start = evt.position;
 		pos_start = transform.position;
 	}
 
@@ -124,7 +132,7 @@ abstract class Dragger : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 		 * This might be cleaner with a frame-by-frame delta but I
 		 * worry about small float errors adding up.
 		 */
-		var delta = now.position - start.position;
+		var delta = now.position - drag_start;
 		reposition(pos_start + delta);
 	}
 
@@ -134,6 +142,22 @@ abstract class Dragger : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 		config.SetValue($"{CONFIG_PREFIX}_YPOS", transform.position.y);
 		config.SetValue($"{CONFIG_PREFIX}_VLOCK", lock_vertical);
 		config.Save(CONFIG_PATH);
+	}
+
+	public void Update()
+	{
+		/* NOTE: I do not like repositioning on every update, but
+		 * haven't found a better method. Switching to the map or to IVA
+		 * view tends to reset the position of the navball and
+		 * altimeter. Forcing a reposition every update puts them back
+		 * where we want them, at the cost of doing so far more often
+		 * than we actually need to.
+		 *
+		 * A better solution would replace or disable whatever hooks
+		 * reposition these elements on view changes, but I don't know
+		 * how to do that yet.
+		 */
+		reposition(pos_last);
 	}
 }
 
