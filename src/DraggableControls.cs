@@ -55,10 +55,10 @@ class Screen
 	{
 		width = GameSettings.SCREEN_RESOLUTION_WIDTH;
 		height = GameSettings.SCREEN_RESOLUTION_HEIGHT;
-		right = width / 2;
 		left = width / -2;
-		top = height / 2;
-		bottom = height / -2;
+		right = width / 2;
+		top = height / -2;
+		bottom = height / 2;
 	}
 }
 
