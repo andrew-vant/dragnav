@@ -20,8 +20,11 @@ using UnityEngine.EventSystems;
 
 
 [KSPAddon(KSPAddon.Startup.Flight, false)]
-public class DraggerAttacher : MonoBehaviour
+public abstract class DraggerAttacher : MonoBehaviour
 {
+	public abstract GameObject target();
+	public abstract void attach(GameObject obj);
+
 	void Start()
 	{
 		/* TODO: I'm unhappy with this. I *want* to make a component
@@ -29,13 +32,8 @@ public class DraggerAttacher : MonoBehaviour
 		 * appropriate targeting method. I know how to do that in
 		 * Python (using classmethods and __init_subclass__), but I
 		 * can't figure out the equivalent in C#.
-		 *
-		 * If I *did* figure it out, third party modders could make
-		 * things draggable without requiring changes to dragctrl
-		 * itself.
 		 */
-		NavballDragger.target().AddComponent<NavballDragger>();
-		AltimeterDragger.target().AddComponent<AltimeterDragger>();
+		attach(target());
 		Destroy(gameObject);
 	}
 }
@@ -162,10 +160,11 @@ abstract class Dragger : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 }
 
 
-class NavballDragger : Dragger
+/* Concrete classes begin here */
+
+public class NavballAttacher : DraggerAttacher
 {
-	public override string CONFIG_PREFIX { get; } = "NAVBALL";
-	public static new GameObject target()
+	public override GameObject target()
 	{
 		/* The SAS/navball/maneuver control cluster has type
 		 * "IVAEVACollapseGroup", but I can't figure out where that's
@@ -180,6 +179,16 @@ class NavballDragger : Dragger
 		return cluster;
 	}
 
+	public override void attach(GameObject obj)
+	{
+		obj.AddComponent<NavballDragger>();
+	}
+}
+
+
+class NavballDragger : Dragger
+{
+	public override string CONFIG_PREFIX { get; } = "NAVBALL";
 	protected override void reposition(Vector2 pos)
 	{
 		/* Sometimes outside forces set the navball's
@@ -194,10 +203,9 @@ class NavballDragger : Dragger
 }
 
 
-class AltimeterDragger : Dragger
+public class AltimeterAttacher : DraggerAttacher
 {
-	public override string CONFIG_PREFIX { get; } = "ALTIMETER";
-	public static new GameObject target()
+	public override GameObject target()
 	{
 		/* The altimeter's control cluster is the grandparent of the
 		 * altimeter object. Not sure of a more concise way to get a
@@ -208,4 +216,15 @@ class AltimeterDragger : Dragger
 		GameObject cluster = slideframeparent.transform.parent.gameObject;
 		return cluster;
 	}
+
+	public override void attach(GameObject obj)
+	{
+		obj.AddComponent<AltimeterDragger>();
+	}
+}
+
+
+class AltimeterDragger : Dragger
+{
+	public override string CONFIG_PREFIX { get; } = "ALTIMETER";
 }
