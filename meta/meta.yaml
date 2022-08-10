@@ -1,9 +1,9 @@
-name: Draggable_Navball
+name: Draggable Controls
 urls:
-  ckan_ver:  https://github.com/andrew-vant/dragnav/releases/latest/download/ckan.version.json
-  releases:  https://github.com/andrew-vant/dragnav/releases
+  ckan_ver:  https://github.com/andrew-vant/dragctrl/releases/latest/download/DraggableNavball.version
+  releases:  https://github.com/andrew-vant/dragctrl/releases
   changelog: https://raw.githubusercontent.com/andrew-vant/dragnav/master/CHANGES.md
 ksp:
   version:     1.8.1
   version_min: 1.8.0
-  version_max: null
+  version_max: 1.12.99
