@@ -2,7 +2,15 @@
 
 ### [Unreleased]
 
-- Possible merge of dragnav/dragalt into a single "Draggable Controls"
+### [0.9.0]
+
+Pre-release of Draggable Controls.
+
+- DraggableNavball and DraggableAltimeter codebases and config files merged
+- Element vertical positioning can be unlocked with a config option
+
+Credit to LinuxGuruGamer for example implementation and generally
+pushing me to do this thing.
 
 ## Pre-merge Changelog -- Draggable Navball
 
