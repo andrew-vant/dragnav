@@ -71,7 +71,9 @@ abstract class Dragger : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 	private Vector2 drag_start;
 	private Vector2 pos_start;
 	private Vector2 pos_last;
+	protected Vector2 pos_orig;
 	private bool lock_vertical = true;
+	protected float snap_range = 5;
 
 
 	/* DRAGGER SUBCLASSES MUST PROVIDE THE FOLLOWING:
@@ -96,7 +98,9 @@ abstract class Dragger : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 
 	public void Start()
 	{
+		pos_orig = transform.position;
 		lock_vertical = bool.Parse(config.GetValue($"{CONFIG_PREFIX}_VLOCK"));
+		snap_range = float.Parse(config.GetValue($"{CONFIG_PREFIX}_SNAP_RANGE"));
 		var pos = new Vector2(
 			float.Parse(config.GetValue($"{CONFIG_PREFIX}_XPOS")),
 			float.Parse(config.GetValue($"{CONFIG_PREFIX}_YPOS"))
@@ -108,10 +112,16 @@ abstract class Dragger : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 	{
 		Vector3 newpos = transform.position;
 		newpos.x = Mathf.Clamp(pos.x, Screen.left, Screen.right);
+		if (Math.Abs(pos.y - pos_orig.y) < snap_range)
+			{ pos.y = pos_orig.y; }
 		if (!lock_vertical)
-			newpos.y = Mathf.Clamp(pos.y, Screen.top, Screen.bottom);
+			{ newpos.y = pos.y; }
 		pos_last = newpos;
 		transform.position = newpos;
+		// FIXME: I want to clamp to the screen, but it doesn't work the
+		// way I expect. I think because the alt and nav clusters don't
+		// share a coordinate system that I can map easily to the
+		// screen?
 	}
 
 	public void OnBeginDrag(PointerEventData evt)
